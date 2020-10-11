@@ -1,0 +1,64 @@
+---
+- hosts: webservers 
+  tasks:
+    - name: Iptables Configuration
+      shell: iptables -A INPUT -j LOG && sudo iptables -A FORWARD -j LOG
+      become: true
+    
+    - name: Remove old Status of PSAD Report File ans Python Analysis
+      shell: rm -f /etc/ansible/status.out && rm -f /etc/ansible/analyses.py && rm -f /etc/ansible/ips warn=False
+      become: true
+    
+    - name: Generate PSAD Status
+      shell: psad -S
+      register: psad_status
+      become: true
+
+    - name: PSAD Status Result
+      debug:
+        msg: "{{ psad_status.stdout }}"  
+
+    - name: Transfer Python File
+      copy:
+        src: /etc/ansible/analyses.py
+        dest: /etc/ansible/analyses.py
+      become: true
+
+    - name: Running Python Analysis
+      shell: python3 /etc/ansible/analyses.py
+      register: analysis_result
+      become: true
+    
+    - name: Python Analysis Result
+      debug:
+        msg: "{{ analysis_result.stdout }}"
+    
+    - name: Save IPs to Block
+      when: analysis_result.stdout != ""
+      copy:
+        content: "{{ analysis_result.stdout }}"
+        dest: "/etc/ansible/ips"
+      become: true
+    
+
+    - name: Sync IPs to Block
+      when: analysis_result.stdout != ""
+      fetch:
+        src: "/etc/ansible/ips"
+        dest: "/etc/ansible/block_ips"
+        mode: 0774
+        flat: yes
+      become: true
+      
+
+    - name: IPs to be Blocked
+      debug:
+        msg: "{{ lookup('file', '/etc/ansible/block_ips') }}"
+      register: block_ips
+    
+
+    - name: Blocking all IPs
+      when: block_ips.msg != ""
+      command: iptables -A INPUT -s {{ block_ips.msg }} -j DROP
+      become: true
+
