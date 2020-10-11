@@ -1,1 +1,5 @@
-# soar
+# Automação de Segurança Cibernética via SOAR
+
+SOAR (Security Orchestration Automation and Response) utilizando a ferramenta Ansible, de código aberto mas mantido pela Red Hat, para auxiliar na aplicação de patches a um parque de máquinas e servidores, tanto físicos, quanto em nuvem. E para correlacionar e agir em ocorrências de segurança da informação, em que na ocorrência de um evento, uma série de ações serão tomadas automaticamente.
+Para demonstração de funcionalidade, será instalado e configurado via Ansible a ferramenta psad (Intrusion Detection and Log Analysis with iptables), em todas as máquinas e servidores de Sistema Operacional Linux para a detecção de vários programas backdoor (por exemplo, EvilFTP, GirlFriend, SubSeven), ferramentas DDoS (mstream, shaft) e varreduras de porta avançadas (FIN, NULL, XMAS) que são normalmente utilizados por programas de varreduras de portas, como por exemplo, o NMAP.
+Depois da instalação e configuração, o motor lógico desenvolvido no Ansible irá checar em períodos de tempo pré-estipulados se houve alguma tentativa de ataque, se houver uma ocorrência, o sistema automaticamente irá bloquear o IP de origem da tentativa do ataque em todas as máquinas internas e externas. Isolando assim, todo o tráfego proveniente do possível invasor.
